@@ -2,6 +2,7 @@
 const calculator = document.querySelector('.calculator');
 //Variable para traer todo el div calculator__keys con sus elementos
 const keys = document.querySelector('.calculator__keys');
+const display = document.querySelector('.calculator__display')
 
 keys.addEventListener('click', (event) => {
     if(event.target.matches('button')) {
@@ -9,6 +10,8 @@ keys.addEventListener('click', (event) => {
         const action = key.dataset.action;
         const keyContent = key.textContent;
         const displayedNum = display.textContent;
+        const previousKeyType = calculator.dataset.previousKeyType
+
         // Remove .is-depressed class from all keys
         Array.from(key.parentNode.children)
              .forEach(k => k.classList.remove('is-depressed'))
@@ -24,6 +27,9 @@ keys.addEventListener('click', (event) => {
             console.log('Presionó un número');
             
         }
+
+        //Si al button no se le puso un data-action 'add' o 'substract' o 'multiply' o 'divide'
+        //Es decir, si la tecla presionada es un operador
         if (action === 'add' || 
             action === 'substract' || 
             action === 'multiply' || 
@@ -53,26 +59,33 @@ keys.addEventListener('click', (event) => {
             const operator = calculator.dataset.operator
             const secondValue = displayedNum
             
+            //Llama a la función calculate() para realizar la operación
             display.textContent = calculate(firstValue, operator, secondValue)
-
         }
 
     }
 })
 
-const calculate = (firstValue, operator, secondValue) => {
+/**
+ * Function calculate(firstValue, operator, secondValue): Permite calcular la operación solicitada por el usuario
+ * @param {*} firstValue 
+ * @param {*} operator 
+ * @param {*} secondValue 
+ * @returns result of the calculation
+ */
+const calculate = (n1, operator, n2) => {
     // Perform calculation and return calculated value
     let result = ''
   
-  if (operator === 'add') {
-    result = parseFloat(n1) + parseFloat(n2)
-  } else if (operator === 'subtract') {
-    result = parseFloat(n1) - parseFloat(n2)
-  } else if (operator === 'multiply') {
-    result = parseFloat(n1) * parseFloat(n2)
-  } else if (operator === 'divide') {
-    result = parseFloat(n1) / parseFloat(n2)
-  }
-  
-  return result
+    if (operator === 'add') {
+        result = parseFloat(n1) + parseFloat(n2)
+    } else if (operator === 'subtract') {
+        result = parseFloat(n1) - parseFloat(n2)
+    } else if (operator === 'multiply') {
+        result = parseFloat(n1) * parseFloat(n2)
+    } else if (operator === 'divide') {
+        result = parseFloat(n1) / parseFloat(n2)
+    }
+    
+    return result
 }
