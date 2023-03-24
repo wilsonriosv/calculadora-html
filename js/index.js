@@ -25,7 +25,16 @@ keys.addEventListener('click', (event) => {
         //Si al button no se le puso un data-action action=false
         if (!action) {
             console.log('Presionó un número');
-            
+            if (
+                displayedNum === '0' ||
+                previousKeyType === 'operator' ||
+                previousKeyType === 'calculate'
+            ) {
+                display.textContent = keyContent
+            } else {
+                display.textContent = displayedNum + keyContent
+            }
+            calculator.dataset.previousKeyType = 'number'
         }
 
         //Si al button no se le puso un data-action 'add' o 'substract' o 'multiply' o 'divide'
@@ -36,31 +45,81 @@ keys.addEventListener('click', (event) => {
             action === 'divide') 
         {
             console.log('Presionó un operador');
+            const firstValue = calculator.dataset.firstValue
+            const operator = calculator.dataset.operator
+            const secondValue = displayedNum
+            
+            // Note: It's sufficient to check for firstValue and operator because secondValue always exists
+            if (
+                firstValue &&
+                operator &&
+                previousKeyType !== 'operator' &&
+                previousKeyType !== 'calculate'
+            ) {
+                const calcValue = calculate(firstValue, operator, secondValue)
+                display.textContent = calcValue
+            
+                // Update calculated value as firstValue
+                calculator.dataset.firstValue = calcValue
+            } else {
+                // If there are no calculations, set displayedNum as the firstValue
+                calculator.dataset.firstValue = displayedNum
+            }
+
             key.classList.add('is-depressed')
             calculator.dataset.previousKeyType = 'operator'
-            calculator.dataset.firstValue = displayedNum
             calculator.dataset.operator = action
         }
 
         //Si presiona la tecla punto (.)
         if (action === 'decimal') {
             console.log('Presionó la tecla punto');
-            display.textContent = displayedNum + '.'
+            if (!displayedNum.includes('.')) {
+                console.log('Ya tiene un punto')
+                display.textContent = displayedNum + '.'
+            } else if (
+                previousKeyType === 'operator' ||
+                previousKeyType === 'calculate'
+                ) {
+                    console.log('Ya tiene un pÌ∟unto')
+                    display.textContent = '0.'
+            }
+              
+            calculator.dataset.previousKeyType = 'decimal'
         }
         
         //Si presiona la tecla AC
         if (action === 'clear') {
             console.log('Presionó la tecla AC');
+            if (key.textContent === 'AC') {
+                calculator.dataset.firstValue = ''
+                calculator.dataset.modValue = ''
+                calculator.dataset.operator = ''
+                calculator.dataset.previousKeyType = ''
+            } else {
+                key.textContent = 'AC'
+            }
+              
+            display.textContent = 0
+            calculator.dataset.previousKeyType = 'clear'
         }
         
         //Si presiona la tecla igual (=)
         if (action === 'calculate') {
-            const firstValue = calculator.dataset.firstValue
+            let firstValue = calculator.dataset.firstValue
             const operator = calculator.dataset.operator
             const secondValue = displayedNum
-            
-            //Llama a la función calculate() para realizar la operación
-            display.textContent = calculate(firstValue, operator, secondValue)
+  
+            if (firstValue) {
+                if (previousKeyType === 'calculate') {
+                    firstValue = displayedNum
+                    secondValue = calculator.dataset.modValue
+                }
+                display.textContent = calculate(firstValue, operator, secondValue)
+            }
+            // Establecer el atributo de modValue
+            calculator.dataset.modValue = secondValue
+            calculator.dataset.previousKeyType = 'calculate'
         }
 
     }
